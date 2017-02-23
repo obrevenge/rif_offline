@@ -278,7 +278,7 @@ fi
 
 #generating fstab
 echo "# Generating File System Table..."
-genfstab -p /mnt >> /mnt/etc/fstab
+genfstab -p /mnt > /mnt/etc/fstab
 
 #root password
 echo "# Setting root password..."
@@ -287,16 +287,23 @@ echo -e "$rtpasswd\n$rtpasswd2" > .passwd
 arch_chroot "passwd root" < .passwd >/dev/null
 rm .passwd
 
-#adding user
 echo "# Making new user..."
-arch_chroot "useradd -m -g users -G adm,lp,wheel,power,audio,video -s /bin/bash $username"
-touch .passwd
-echo -e "$userpasswd\n$userpasswd2" > .passwd
-arch_chroot "passwd $username" < .passwd >/dev/null
-rm .passwd
-
-#removing liveuser
-userdel -r liveuser
+# Convert live account to entered username - group, password, folder, and ownership
+	   sed -i "s/liveuser/$username/g" ${MOUNTPOINT}/etc/group
+	   sed -i "s/liveuser/$username/g" ${MOUNTPOINT}/etc/gshadow
+	   sed -i "s/liveuser/$username/g" ${MOUNTPOINT}/etc/passwd
+	   sed -i "s/liveuser/$username/g" ${MOUNTPOINT}/etc/shadow
+	   mv ${MOUNTPOINT}/home/liveuser ${MOUNTPOINT}/home/$username
+	   chown -R $username:users ${MOUNTPOINT}/home/$username
+	
+	  touch .passwd
+      echo -e "$userpasswd\n$userpasswd2" > .passwd
+      arch_chroot "passwd $username" < .passwd >/dev/null
+      rm .passwd
+        
+	   # Change sudoers file to require passwords for sudo commands
+	   sed -i '/%wheel ALL=(ALL) ALL/s/^#//' ${MOUNTPOINT}/etc/sudoers
+	   sed -i '/%wheel ALL=(ALL) ALL NOPASSWD: ALL/s/#%wheel ALL=(ALL) ALL NOPASSWD: ALL//' ${MOUNTPOINT}/etc/sudoers
 
 #setting locale
 echo "# Generating Locale..."
@@ -320,10 +327,7 @@ arch_chroot "hwclock --systohc --$clock"
 #setting hostname
 echo "# Setting Hostname..."
 arch_chroot "rm /etc/hostname"
-arch_chroot "echo $hname > /etc/hostname"
-
-# setting sudo permissions
-echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
+arch_chroot "echo $hname > /etc/hostname
 
 # installing bootloader
 if [ "$grub" = "yes" ]
