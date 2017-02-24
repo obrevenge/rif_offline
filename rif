@@ -329,6 +329,10 @@ echo "# Setting Hostname..."
 arch_chroot "rm /etc/hostname"
 arch_chroot "echo $hname > /etc/hostname
 
+# running mkinit
+echo "# Running mkinitcpio..."
+arch_chroot "mkinitcpio -p linux"
+
 # installing bootloader
 if [ "$grub" = "yes" ]
 	then if [ "$SYSTEM" = 'BIOS' ]
@@ -354,10 +358,6 @@ if [ "$grub" = "yes" ]
 		[[ -e /mnt/boot/initramfs-linux-zen.img ]] && echo -e "title\tArch Linux Zen\nlinux\t/vmlinuz-linux-zen\ninitrd\t/initramfs-linux-zen.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-zen.conf
 		fi
 fi
-
-# running mkinit
-echo "# Running mkinitcpio..."
-arch_chroot "mkinitcpio -p linux"
 
 # unmounting partitions
 umount -R /mnt
