@@ -307,7 +307,7 @@ echo "# Making new user..."
 
 #setting locale
 echo "# Generating Locale..."
-echo "LANG=\"${locale}\"" > /mnt/etc/locale.conf
+echo "LANG=\"${locale}\" > /mnt/etc/locale.conf
 echo "${locale} UTF-8" > /mnt/etc/locale.gen
 arch_chroot "locale-gen"
 export LANG=${locale}
