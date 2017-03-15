@@ -331,6 +331,9 @@ echo "# Setting Hostname..."
 arch_chroot "rm /etc/hostname"
 arch_chroot "echo $hname > /etc/hostname
 
+# set up kernel for mkiniticpio
+cp /run/archiso/bootmnt/arch/boot/${ARCHI}/vmlinuz ${MOUNTPOINT}/boot/vmlinuz-linux 2>>/tmp/.errlog
+
 # running mkinit
 echo "# Running mkinitcpio..."
 arch_chroot "mkinitcpio -p linux"
