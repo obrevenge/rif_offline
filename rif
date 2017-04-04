@@ -171,7 +171,7 @@ subzone=$(zenity --list --title="$title" --radiolist --text "Select your sub-zon
 clock=$(zenity --list --title="$title" --radiolist --text "Would you like to use UTC or Local Time\nUTC is recommended unless you are dual booting with Windows." --column Select --column Time TRUE utc FALSE localtime)
 
 # Getting hostname, username, root password, and user password
-hname=$(zenity --entry --title="$title" --text "Please enter a hostname for your system.\nIt must be in all lowercase letters." --entry-text "revenge")
+hname=$(zenity --entry --title="$title" --text "Please enter a hostname for your system.\nIt must be in all lowercase letters." --entry-text "obrevenge")
 
 username=$(zenity --entry --title="$title" --text "Please enter a username for the new user.\nAgain, in all lowercase." --entry-text "user")
 }
@@ -249,7 +249,8 @@ fi
   rmdir ${MOUNTPOINT}/source 2>>/tmp/.errlog
   rm -f ${MOUNTPOINT}/etc/sudoers.d/g_wheel 2>>/tmp/.errlog
   rm -f ${MOUNTPOINT}/var/lib/NetworkManager/NetworkManager.state 2>>/tmp/.errlog
-  rm -f ${MOUNTPOINT}/update-abif 2>>/tmp/.errlog
+  rm -f ${MOUNTPOINT}/usr/share/applications/rif.desktop 2>>/tmp/.errlog
+  rm -f ${MOUNTPOINT}/usr/share/applications/calamares.desktop 2>>/tmp/.errlog
   sed -i 's/.*pam_wheel\.so/#&/' ${MOUNTPOINT}/etc/pam.d/su 2>>/tmp/.errlog
  
   # clean out archiso files from install
@@ -270,7 +271,7 @@ fi
   arch_chroot "systemctl enable NetworkManager -f"
   
   # Display Manager
-  arch_chroot "systemctl enable lightdm.service"
+  arch_chroot "systemctl enable lightdm-plymouth.service"
   
   # Virtualbox Guest
   [[ $(lspci | grep -i "vga" | sed 's/.*://' | sed 's/(.*//' | sed 's/^[ \t]*//' | grep -i "virtualbox") != "" ]] && arch_chroot "systemctl enable vboxservice"
@@ -370,6 +371,13 @@ umount -R /mnt
 echo "# Installation Finished!"
 ) | zenity --progress --title="$title" --width=450 --pulsate --no-cancel
 
+finished=$(zenity --list --title="$title" --radiolist --text "What would you like to do now?" --column Select --column Locale TRUE "reboot" FALSE "close installer")
+
+if [ "$finished" = "reboot" ]
+	then reboot
+	else
+		exit
+fi
 }
 
 # execution
@@ -382,7 +390,7 @@ fi
 
 
 # Setting variables
-title="Revenge Intaller Framework 0.10 $SYSTEM"
+title="OBRevenge Intaller Framework 0.10 $SYSTEM"
 
 # Adapted from AIS. An excellent bit of code!
 arch_chroot() {
@@ -394,7 +402,7 @@ Parted() {
 	parted --script $dev "$1"
 }
 # Greeting the user
-zenity --question --title="$title" --text "Welcome to the Revenge Installer.\n\nNext you will be prompted with a series of questions that will\nguide you through installing Arch Linux.\nYou will be asked if you want to use manual or auto partitioning.\nIf you select auto partitioning the drive that you select will be completely deleted\nand Arch will be installed. If you select manual, you will have the opportunity to partition the disk yourself\nand select which partitons to use for installation.\nClick 'yes' to begin or 'no' to exit." --height=50
+zenity --question --title="$title" --text "Welcome to the OBRevenge Installer.\n\nNext you will be prompted with a series of questions that will\nguide you through installing OBRevenge OS.\nYou will be asked if you want to use manual or auto partitioning.\nIf you select auto partitioning the drive that you select will be completely deleted\nand OBRevenge OS will be installed. If you select manual, you will have the opportunity to partition the disk yourself\nand select which partitons to use for installation.\nClick 'yes' to begin or 'no' to exit." --height=50
 
 if [ "$?" = "1" ]
 	then exit
